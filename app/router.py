@@ -1,8 +1,12 @@
-from app import app
 from app import bert
+from app import w2v
+from app import app
 
 from flask import request
 from flask import render_template
+
+bert_model = bert.load_model()
+w2v_model = w2v.load_model()
 
 @app.route('/')
 @app.route('/index')
@@ -25,8 +29,23 @@ def index():
 
 @app.route('/test')
 def test():
-    return "It works!"
+    if hasattr(w2v_model, 'model'):
+        return "It works!"
+    else:
+        return 'Модель не инициализирована'
 
 @app.route("/bert_embedding", methods=["POST"])
 def embed_bert_cls():
-    return bert.embed_bert_cls(request.get_json(), True)
+    return bert_model.embed_bert_cls(request.get_json()['СтрокаПоиска'], True)
+
+@app.route("/init_bert_embeddings", methods=["POST"])
+def init_embeddings():
+    return bert_model.init_embeddings(request.get_json()['Данные'])
+
+@app.route("/predict_bert", methods=["POST"])
+def predict_bert():
+    return bert_model.predict(request.get_json())
+
+@app.route("/predict_w2v", methods=["POST"])
+def predict_w2v():
+    return w2v_model.predict(request.get_json())
