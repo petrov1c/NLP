@@ -5,6 +5,8 @@ import os.path
 from transformers import AutoTokenizer, AutoModel
 from flask import jsonify
 
+import re
+
 class Bert:
     def __init__(self, data, model, tokenizer):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -92,3 +94,13 @@ def load_model():
         bert_embs = ''
 
     return Bert(bert_embs, model, tokenizer)
+
+def regex(data):
+    # https://habr.com/ru/post/349860/
+
+    if 'Шаблон' in data:
+        REGEX = re.compile(data['Шаблон'])
+        return ' '.join(REGEX.findall(data['Строка'].strip()))
+    else:
+        line = re.sub('\S*\d\S*', '', data['Строка'].strip())
+        return ' '.join(re.findall('[А-я0-9.,!?ёЁ"]+', line))

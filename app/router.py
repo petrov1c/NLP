@@ -34,6 +34,10 @@ def test():
     else:
         return 'Модель не инициализирована'
 
+@app.route('/re')
+def re():
+    return bert.regex(request.get_json())
+
 @app.route("/bert_embedding", methods=["POST"])
 def embed_bert_cls():
     return bert_model.embed_bert_cls(request.get_json()['СтрокаПоиска'], True)
