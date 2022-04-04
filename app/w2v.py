@@ -36,6 +36,8 @@ class G2V:
         with open('./data/goods.json', "w", encoding='UTF-8') as write_file:
             json.dump(data, write_file)
 
+        return jsonify({'result': True})
+
     def predict(self, data):
         if hasattr(self, 'model'):
             if 'Количество' in data:
