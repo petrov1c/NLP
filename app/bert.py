@@ -67,8 +67,13 @@ class Bert:
         embs = torch.zeros((len(data), self.model.config.emb_size), device=self.model.device)
         embs_dict = dict()
 
+        REGEX_ONE_STEP = re.compile('\S*\d\S*')         # удаление слов, где есть цифры
+        REGEX_TWO_STEP = re.compile('[А-я0-9.,!?ёЁ"]+') # Оставим только русский текст
         for i, good in enumerate(data):
-            embs[i] = self.embed_bert_cls(good['Наименование'])
+            line = REGEX_ONE_STEP.sub('', good['Наименование'].strip())
+            line = ' '.join(REGEX_TWO_STEP.findall(line))
+
+            embs[i] = self.embed_bert_cls(line)
             embs_dict[i] = good['Код']
 
         self.dict = embs_dict

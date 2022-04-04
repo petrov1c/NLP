@@ -30,6 +30,12 @@ class G2V:
 
             self.model = model.wv
 
+    def update(self, data):
+        if os.path.isfile('./data/w2v.txt'):
+            os.remove('./data/w2v.txt')
+        with open('./data/goods.json', "w", encoding='utf-8') as write_file:
+            json.dump(data, write_file)
+
     def predict(self, data):
         if hasattr(self, 'model'):
             if 'Количество' in data:

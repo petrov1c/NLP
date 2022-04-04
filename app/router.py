@@ -29,10 +29,18 @@ def index():
 
 @app.route('/test')
 def test():
+    res = []
     if hasattr(w2v_model, 'model'):
-        return "It works!"
+        res.append("w2v: It works!")
     else:
-        return 'Модель не инициализирована'
+        res.append("w2v: модель не инициализирована")
+
+    if hasattr(bert_model, 'model'):
+        res.append("bert: It works!")
+    else:
+        res.append("bert: модель не инициализирована")
+
+    return ' '.join(res)
 
 @app.route('/re')
 def re():
@@ -45,6 +53,10 @@ def embed_bert_cls():
 @app.route("/init_bert_embeddings", methods=["POST"])
 def init_embeddings():
     return bert_model.init_embeddings(request.get_json()['Данные'])
+
+@app.route("/update_w2v", methods=["POST"])
+def update_w2v():
+    return w2v_model.update(request.get_json())
 
 @app.route("/predict_bert", methods=["POST"])
 def predict_bert():
