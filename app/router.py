@@ -11,21 +11,7 @@ w2v_model = w2v.load_model()
 @app.route('/')
 @app.route('/index')
 def index():
-    user = { 'nickname': 'Мой друг' } # выдуманный пользователь
-    posts = [ # список выдуманных постов
-        {
-            'author': { 'nickname': 'John' },
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': { 'nickname': 'Susan' },
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template("index.html",
-        title = 'Home',
-        user = user,
-        posts = posts)
+    return test()
 
 @app.route('/test')
 def test():
@@ -38,6 +24,9 @@ def test():
     if hasattr(bert_model, 'model'):
         res.append("bert: It works!")
     else:
+        res.append("bert: модель не инициализирована")
+
+    if not hasattr(bert_model, 'embs'):
         res.append("bert: модель не инициализирована")
 
     return ' '.join(res)
