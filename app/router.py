@@ -57,9 +57,7 @@ def w2v_config():
 
 @app.route("/w2v/fit", methods=["POST"])
 def w2v_fit():
-    w2v.fit(w2v_model)
-    # w2v_model.fit()
-    return jsonify({'result': True})
+    return jsonify(w2v.fit(w2v_model))
 
 @app.route("/w2v/update", methods=["POST"])
 def w2v_update():

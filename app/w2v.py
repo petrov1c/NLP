@@ -35,6 +35,9 @@ class G2V:
         if hasattr(self, 'training_time'):
             info['training_time'] = self.training_time
 
+        if hasattr(self, 'training'):
+            info['training'] = self.training
+
         if os.path.isfile('./data/w2v_config.json'):
             with open('./data/w2v_config.json', "r", encoding='UTF-8') as read_file:
                 info['config'] = json.load(read_file)
@@ -44,6 +47,10 @@ class G2V:
         return info
 
     def fit(self):
+
+        self.model_init = False
+        self.training = True
+
         if os.path.isfile('./data/w2v_data.json'):
             with open('./data/w2v_data.json', "r", encoding='UTF-8') as read_file:
                 sentences = json.load(read_file)
@@ -69,6 +76,7 @@ class G2V:
             if corpus == 'goods':
                 data = [sentence.split() for sentence in sentences['Данные']]
             else:
+                #ToDo тексты очищать через re перед передачей их в токенайзер
                 data = [[i.text for i in tokenize(sentence.lower())] for sentence in sentences['Данные']]
 
             start_time = time.time()
@@ -80,8 +88,7 @@ class G2V:
             self.model_init = True
             self.date_init = datetime.isoformat(datetime.now())
             self.training_time = time.time() - start_time
-        else:
-            self.model_init = False
+            self.training = False
 
     def config(self, data):
         with open('./data/w2v_config.json', "w", encoding='UTF-8') as write_file:
@@ -112,7 +119,13 @@ class G2V:
             return {'result': False, 'error': 'Модель не инициализирована'}
 
 def fit(model):
-    threading.Thread(target=model.fit).start()
+
+    if hasattr(model, 'training') and model.training:
+        return {'result': False, 'error': 'Обучение уже запущено'}
+    else:
+        thread_fit = threading.Thread(target=model.fit)
+        thread_fit.start()
+        return {'result': True}
 
 def load_model():
     return G2V()
