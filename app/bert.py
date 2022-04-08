@@ -7,6 +7,9 @@ from flask import jsonify
 
 import re
 
+REGEX_ONE_STEP = re.compile('\S*\d\S*')  # удаление слов, где есть цифры
+REGEX_TWO_STEP = re.compile('[А-я0-9.,!?ёЁ"]+')  # Оставим только русский текст
+
 class Bert:
     def __init__(self, data, model, tokenizer):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -67,8 +70,6 @@ class Bert:
         embs = torch.zeros((len(data), self.model.config.emb_size), device=self.model.device)
         embs_dict = dict()
 
-        REGEX_ONE_STEP = re.compile('\S*\d\S*')         # удаление слов, где есть цифры
-        REGEX_TWO_STEP = re.compile('[А-я0-9.,!?ёЁ"]+') # Оставим только русский текст
         for i, good in enumerate(data):
             line = REGEX_ONE_STEP.sub('', good['Наименование'].strip())
             line = ' '.join(REGEX_TWO_STEP.findall(line))
@@ -107,5 +108,5 @@ def regex(data):
         REGEX = re.compile(data['Шаблон'])
         return ' '.join(REGEX.findall(data['Строка'].strip()))
     else:
-        line = re.sub('\S*\d\S*', '', data['Строка'].strip())
-        return ' '.join(re.findall('[А-я0-9.,!?ёЁ"]+', line))
+        line = REGEX_ONE_STEP.sub('', data['Строка'].strip())
+        return ' '.join(REGEX_TWO_STEP.findall(line))
