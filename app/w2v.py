@@ -84,7 +84,7 @@ class G2V:
 
             start_time = time.time()
 
-            model = gensim.models.Word2Vec(data, window=window_size, sg=sg, min_count=3, size = emb_size, epochs=epoch, workers=cpu_count())
+            model = gensim.models.Word2Vec(data, window=window_size, sg=sg, min_count=3, vector_size=emb_size, epochs=epoch, workers=cpu_count())
             model.wv.save_word2vec_format('./data/w2v.txt', binary=True)
 
             self.model = model.wv
