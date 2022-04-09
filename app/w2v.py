@@ -56,6 +56,7 @@ class G2V:
                 sentences = json.load(read_file)
 
             window_size = 3
+            emb_size = 100
             sg = 0
             epoch = 100
             corpus = 'goods'
@@ -66,6 +67,8 @@ class G2V:
                     if isinstance(w2v_config, dict):
                         if 'window_size' in w2v_config:
                             window_size = w2v_config['window_size']
+                        if 'emb_size' in w2v_config:
+                            emb_size = w2v_config['emb_size']
                         if 'sg' in w2v_config:
                             sg = w2v_config['sg']
                         if 'epoch' in w2v_config:
@@ -81,7 +84,7 @@ class G2V:
 
             start_time = time.time()
 
-            model = gensim.models.Word2Vec(data, window=window_size, sg=sg, min_count=3, epochs=epoch, workers=cpu_count())
+            model = gensim.models.Word2Vec(data, window=window_size, sg=sg, min_count=3, size = emb_size, epochs=epoch, workers=cpu_count())
             model.wv.save_word2vec_format('./data/w2v.txt', binary=True)
 
             self.model = model.wv
