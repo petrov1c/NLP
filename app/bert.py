@@ -103,10 +103,19 @@ def load_model():
 
 def regex(data):
     # https://habr.com/ru/post/349860/
+    # https: //regex101.com/r/aGn8QC/2 удобно использовать для отладки шаблонов
 
-    if 'Шаблон' in data:
+    if 'ТипДанных' in data:
+        if data['ТипДанных'] == 'Дата':
+            sh = '\d{1,2}[.,/]\d{1,2}[.,/]\d{2,4}(?:[\s]?[г][ода]*[.]?)?|\d{1,2}\s(?:янв|фев|мар|апр|мая|июн|июл|авг|сент|окт|ноя|дек)[а-я]*\s\d{2,4}(?:[\s]?[г][ода]*[.]?)?'
+        else:
+            return jsonify({'error': 'Тип данных {} не поддерживается'.format(data['ТипДанных'])})
+
+        REGEX = re.compile(sh)
+        return jsonify({'result': REGEX.findall(data['Строка'].lower().strip())})
+    elif 'Шаблон' in data:
         REGEX = re.compile(data['Шаблон'])
-        return ' '.join(REGEX.findall(data['Строка'].strip()))
+        return jsonify({'result': REGEX.findall(data['Строка'].strip())})
     else:
         line = REGEX_ONE_STEP.sub('', data['Строка'].strip())
         return ' '.join(REGEX_TWO_STEP.findall(line))
