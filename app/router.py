@@ -1,11 +1,13 @@
 from app import bert
 from app import w2v
+from app import fasttext
 from app import app
 
 from flask import request, jsonify
 
 bert_model = bert.load_model()
 w2v_model = w2v.load_model()
+fasttext_model = fasttext.load_model()
 
 @app.route('/')
 @app.route('/index')
@@ -45,6 +47,23 @@ def init_embeddings():
 @app.route("/predict_bert", methods=["POST"])
 def predict_bert():
     return bert_model.predict(request.get_json())
+
+@app.route("/fasttext/model_info", methods=["POST"])
+def fasttext_model_info():
+    return jsonify(fasttext_model.model_info())
+
+@app.route("/fasttext/config", methods=["POST"])
+def fasttext_config():
+    fasttext_model.config(request.get_json())
+    return jsonify({'result': True})
+
+@app.route("/fasttext/load_embeddings", methods=["POST"])
+def fasttext_load_embeddings():
+    return fasttext_model.load_embeddings(request.get_json()['Данные'])
+
+@app.route("/fasttext/predict", methods=["POST"])
+def fasttext_predict():
+    return jsonify(fasttext_model.predict(request.get_json()))
 
 @app.route("/w2v/model_info", methods=["POST"])
 def w2v_model_info():

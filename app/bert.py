@@ -7,8 +7,8 @@ from flask import jsonify
 
 import re
 
-REGEX_ONE_STEP = re.compile('\S*\d\S*')  # удаление слов, где есть цифры
-REGEX_TWO_STEP = re.compile('[А-я0-9.,!?ёЁ"]+')  # Оставим только русский текст
+REGEX_ONE_STEP = re.compile(r'\S*\d\S*')  # удаление слов, где есть цифры
+REGEX_TWO_STEP = re.compile(r'[А-я0-9.,!?ёЁ"]+')  # Оставим только русский текст
 
 class Bert:
     def __init__(self, data, model, tokenizer):
@@ -41,6 +41,7 @@ class Bert:
             rez = torch.cosine_similarity(search_emb, self.embs)
             sort_idx = rez.argsort(descending=True)[:count].cpu().tolist()
 
+            #ToDo Передавать слова в массиве так как в словаре они перемешиваются и выдаются не в том порядке
             rez_data = {self.dict[idx]: rez[idx].item() for idx in sort_idx}
             return jsonify({'result': True, 'data': rez_data})
         else:
