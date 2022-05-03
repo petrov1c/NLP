@@ -59,6 +59,7 @@ class KeyVectored:
             info['ngram'] = self.model.vectors_ngrams.shape
             info['min_n'] = self.model.min_n
             info['max_n'] = self.model.max_n
+            info['device'] = self.device
         else:
             info['model'] = 'модель не создана'
 
@@ -67,9 +68,9 @@ class KeyVectored:
         if hasattr(self, 'date_init'):
             info['datetime_init'] = self.datetime_init
 
-        info['embs_is_load'] = self.embs_is_load
-        info['datetime_load_embs'] = self.datetime_load_embs
-        info['device'] = self.device
+        if hasattr(self, 'embs_is_load'):
+            info['embs_is_load'] = self.embs_is_load
+            info['datetime_load_embs'] = self.datetime_load_embs
 
         if os.path.isfile('./data/fasttext_config.json'):
             with open('./data/fasttext_config.json', "r", encoding='UTF-8') as read_file:
