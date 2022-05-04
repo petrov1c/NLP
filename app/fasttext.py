@@ -19,19 +19,19 @@ class KeyVectored:
             with open('./data/fasttext_config.json', "r", encoding='UTF-8') as read_file:
                 config = json.load(read_file)
 
-            if hasattr(config, 'model'):
+            if 'model' in config:
                 if os.path.isfile(config['model']):
                     self.model = KeyedVectors.load(config['model'])
                     self.model_init = True
                     self.datetime_init = datetime.isoformat(datetime.now())
                     self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-                    if hasattr(config, 'min_n'):
+                    if 'min_n' in config:
                         self.model.min_n = config['min_n']
                     else:
                         self.model.min_n = 3
 
-                    if hasattr(config, 'max_n'):
+                    if 'max_n' in config:
                         self.model.max_n = config['max_n']
                     else:
                         self.model.max_n = 5
