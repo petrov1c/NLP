@@ -3,6 +3,7 @@ from razdel import tokenize            # проект Natasha
 
 import json
 import os.path
+import time
 from datetime import datetime
 import re
 import torch
@@ -15,6 +16,9 @@ REGEX_THREE_STEP = re.compile(r'\b[^A-zАЕЁИОУЫЭЮЯаеёиоуыэюя0
 
 class KeyVectored:
     def __init__(self):
+        start_time = time.time()
+        self.model_init = False
+        self.embs_is_load = False
         if os.path.isfile('./data/fasttext_config.json'):
             with open('./data/fasttext_config.json', "r", encoding='UTF-8') as read_file:
                 config = json.load(read_file)
@@ -51,37 +55,36 @@ class KeyVectored:
                             self.embs_is_load = True
                             self.datetime_load_embs = datetime.isoformat(datetime.now())
 
+        self.startup_time = time.time() - start_time
+
     def model_info(self):
         info = {}
+        info['Модель создана'] = self.model_init
         if hasattr(self, 'model'):
-            info['model'] = 'модель создана'
             info['vocab'] = self.model.vectors.shape[0]
             info['ngram'] = self.model.vectors_ngrams.shape
             info['min_n'] = self.model.min_n
             info['max_n'] = self.model.max_n
             info['device'] = self.device
-        else:
-            info['model'] = 'модель не создана'
 
-        if hasattr(self, 'model_init'):
-            info['model_init'] = self.model_init
         if hasattr(self, 'date_init'):
-            info['datetime_init'] = self.datetime_init
-
+            info['Дата создания'] = self.datetime_init
         if hasattr(self, 'embs_is_load'):
-            info['embs_is_load'] = self.embs_is_load
+            info['Эмбеддинги загружены'] = self.embs_is_load
         if hasattr(self, 'datetime_load_embs'):
-            info['datetime_load_embs'] = self.datetime_load_embs
+            info['Дата загрузки эмбеддингов'] = self.datetime_load_embs
+        if hasattr(self, 'startup_time'):
+            info['Время запуска'] = self.startup_time
 
         if os.path.isfile('./data/fasttext_config.json'):
             with open('./data/fasttext_config.json', "r", encoding='UTF-8') as read_file:
-                info['config'] = json.load(read_file)
+                info['Конфигурационный файл'] = json.load(read_file)
         else:
-            info['config'] = 'отсутствует'
+            info['Конфигурационный файл'] = 'отсутствует'
 
         return info
 
-    def load_embeddings(self, data, save_data=True):
+    def update(self, data, save_data=True):
 
         self.embs_is_load = False
 
@@ -99,7 +102,7 @@ class KeyVectored:
 
         # сохранение эмбеддингов и инициализация из них
         if save_data:
-            embs = {value: embs[key].tolist() for key, value in embs_dict.items()}
+            embs = {value: embs[key].tolist() for key, value in self.dict.items()}
             with open('./data/fasttext_embs.json', "w") as write_file:
                 json.dump(embs, write_file)
 

@@ -57,9 +57,9 @@ def fasttext_config():
     fasttext_model.config(request.get_json())
     return jsonify({'result': True})
 
-@app.route("/fasttext/load_embeddings", methods=["POST"])
-def fasttext_load_embeddings():
-    return fasttext_model.load_embeddings(request.get_json()['Данные'])
+@app.route("/fasttext/update", methods=["POST"])
+def fasttext_update():
+    return fasttext_model.update(request.get_json()['Данные'])
 
 @app.route("/fasttext/predict", methods=["POST"])
 def fasttext_predict():
