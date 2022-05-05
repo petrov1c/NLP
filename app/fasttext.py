@@ -62,7 +62,7 @@ class KeyVectored:
         info['Модель создана'] = self.model_init
         if hasattr(self, 'model'):
             info['vocab'] = self.model.vectors.shape[0]
-            info['ngram'] = self.model.vectors_ngrams.shape
+            info['ngram'] = self.model.vectors_ngrams.shape[0]
             info['min_n'] = self.model.min_n
             info['max_n'] = self.model.max_n
             info['device'] = self.device
@@ -102,7 +102,7 @@ class KeyVectored:
 
         # сохранение эмбеддингов и инициализация из них
         if save_data:
-            embs = {value: embs[key].tolist() for key, value in self.dict.items()}
+            embs = {value: self.embs[key].tolist() for key, value in self.dict.items()}
             with open('./data/fasttext_embs.json', "w") as write_file:
                 json.dump(embs, write_file)
 
