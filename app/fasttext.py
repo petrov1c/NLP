@@ -70,6 +70,7 @@ class KeyVectored:
 
         if hasattr(self, 'embs_is_load'):
             info['embs_is_load'] = self.embs_is_load
+        if hasattr(self, 'datetime_load_embs'):
             info['datetime_load_embs'] = self.datetime_load_embs
 
         if os.path.isfile('./data/fasttext_config.json'):
