@@ -73,6 +73,8 @@ class KeyVectored:
             info['Эмбеддинги загружены'] = self.embs_is_load
         if hasattr(self, 'datetime_load_embs'):
             info['Дата загрузки эмбеддингов'] = self.datetime_load_embs
+        if hasattr(self, 'load_embs_time'):
+            info['Время обновления данных'] = self.load_embs_time
         if hasattr(self, 'startup_time'):
             info['Время запуска'] = self.startup_time
 
@@ -85,6 +87,7 @@ class KeyVectored:
         return info
 
     def update(self, data, save_data=True):
+        start_time = time.time()
 
         self.embs_is_load = False
 
@@ -108,8 +111,9 @@ class KeyVectored:
 
         self.embs_is_load = True
         self.datetime_load_embs = datetime.isoformat(datetime.now())
+        self.load_embs_time = time.time() - start_time
 
-        return jsonify({'result': True})
+        return {'result': True}
 
     def config(self, data):
         with open('./data/fasttext_config.json', "w", encoding='UTF-8') as write_file:

@@ -59,7 +59,7 @@ def fasttext_config():
 
 @app.route("/fasttext/update", methods=["POST"])
 def fasttext_update():
-    return fasttext_model.update(request.get_json()['Данные'])
+    return jsonify(fasttext_model.update(request.get_json()['Данные']))
 
 @app.route("/fasttext/predict", methods=["POST"])
 def fasttext_predict():

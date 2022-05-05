@@ -2,7 +2,9 @@ from gensim.models import FastText
 import numpy as np
 from gensim.models import KeyedVectors
 import re
+import json
 
+s = json.dump(True)
 regex = re.compile(r'[A-z]+')
 
 '''
