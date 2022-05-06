@@ -134,7 +134,7 @@ class KeyVectored:
             sort_idx = rez.argsort(descending=True)[:count].tolist()
 
             rez_data = [{self.dict[idx]: rez[idx].item()} for idx in sort_idx]
-            return jsonify({'result': True, 'data': rez_data})
+            return {'result': True, 'data': rez_data}
 
         elif not self.model_init:
             return {'result': False, 'error': 'Создайте модель'}
