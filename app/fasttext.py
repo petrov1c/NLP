@@ -130,7 +130,7 @@ class KeyVectored:
             search_emb = torch.Tensor(self.get_sentence_vector(text)).to(self.device)
             search_emb = search_emb.tile((self.embs.shape[0], 1)).to(self.device)
 
-            rez = torch.cosine_similarity(search_emb, embs)
+            rez = torch.cosine_similarity(search_emb, self.embs)
             sort_idx = rez.argsort(descending=True)[:count].tolist()
 
             rez_data = [{self.dict[idx]: rez[idx].item()} for idx in sort_idx]
