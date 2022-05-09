@@ -128,6 +128,13 @@ class KeyVectored:
             else:
                 count = 3
 
+            if 'Порог' in data:
+                threshhold = data['Количество']
+                if threshhold > 1:
+                    threshhold = threshhold/100
+            else
+                threshhold = 0
+
             text = self.preprocess(data['СтрокаПоиска'])
             if text == '':
                 return {'result': True, 'data': [], 'text': text}
@@ -137,8 +144,11 @@ class KeyVectored:
 
             rez = torch.cosine_similarity(search_emb, self.embs)
             sort_idx = rez.argsort(descending=True)[:count].tolist()
-
-            rez_data = [{self.dict[idx]: rez[idx].item()} for idx in sort_idx]
+            if threshhold > 0:
+                thresh_idx = rez > threshhold
+                rez_data = [{self.dict[idx]: rez[idx].item()} for idx in sort_idx if thresh_idx[idx]]
+            else:
+                rez_data = [{self.dict[idx]: rez[idx].item()} for idx in sort_idx]
             return {'result': True, 'data': rez_data, 'text': text}
 
         elif not self.model_init:
