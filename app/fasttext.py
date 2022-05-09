@@ -119,6 +119,8 @@ class KeyVectored:
         with open('./data/fasttext_config.json', "w", encoding='UTF-8') as write_file:
             json.dump(data, write_file)
 
+        self.__init__()
+
     def predict(self, data):
         if self.model_init and self.embs_is_load:
             if 'Количество' in data:
@@ -146,8 +148,9 @@ class KeyVectored:
 
     def preprocess(self, text):
         '''
-        к нижнему регистру пока не привожу
+        привожу к нижнему регистру
         удаляем слова с цифрами
+        оставляем слова только с русским текстом и цифрами
         оставляем слова с русскими гласными буквами
         '''
         text = text.lower().strip()
