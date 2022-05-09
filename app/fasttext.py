@@ -152,7 +152,7 @@ class KeyVectored:
         '''
         text = text.strip()
         text = REGEX_ONE_STEP.sub('', text)
-        #text = ' '.join(REGEX_TWO_STEP.findall(text))
+        text = ' '.join(REGEX_TWO_STEP.findall(text))
         text = REGEX_THREE_STEP.sub('', text)
         text = ' '.join(text.split())
         return text
