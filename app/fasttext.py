@@ -129,7 +129,7 @@ class KeyVectored:
                 count = 3
 
             if 'Порог' in data:
-                threshhold = data['Количество']
+                threshhold = data['Порог']
                 if threshhold > 1:
                     threshhold = threshhold/100
             else:
