@@ -150,7 +150,7 @@ class KeyVectored:
         удаляем слова с цифрами
         оставляем слова с русскими гласными буквами
         '''
-        text = text.strip()
+        text = text.lower().strip()
         text = REGEX_ONE_STEP.sub('', text)
         text = ' '.join(REGEX_TWO_STEP.findall(text))
         text = REGEX_THREE_STEP.sub('', text)
