@@ -11,7 +11,7 @@ import numpy as np
 from numpy.linalg import norm
 
 REGEX_ONE_STEP = re.compile(r'\S*\d\S*')          # удаление слов, где есть цифры
-REGEX_TWO_STEP = re.compile(r'[А-я0-9.,!?ёЁ"]+')  # Оставим только слова с русским текстом
+REGEX_TWO_STEP = re.compile(r'[А-я0-9.,!?ёЁ]+')  # Оставим только слова с русским текстом
 REGEX_THREE_STEP = re.compile(r'\b[^A-zАЕЁИОУЫЭЮЯаеёиоуыэюя0-9\s]{2,}\b') # Удаление слов, состоящих только из согласных букв, например мм
 
 class KeyVectored:
