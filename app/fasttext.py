@@ -132,7 +132,7 @@ class KeyVectored:
                 threshhold = data['Количество']
                 if threshhold > 1:
                     threshhold = threshhold/100
-            else
+            else:
                 threshhold = 0
 
             text = self.preprocess(data['СтрокаПоиска'])
