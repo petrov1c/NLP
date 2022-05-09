@@ -127,7 +127,7 @@ class KeyVectored:
                 count = 3
 
             text = self.preprocess(data['СтрокаПоиска'])
-            if text = '':
+            if text == '':
                 return {'result': True, 'data': [], 'text': text}
 
             search_emb = torch.Tensor(self.get_sentence_vector(text)).to(self.device)
