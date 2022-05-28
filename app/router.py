@@ -2,6 +2,7 @@ from app import bert
 from app import w2v
 from app import fasttext
 from app import app
+from app import renext
 
 from flask import request, jsonify
 
@@ -32,9 +33,13 @@ def test():
 
     return ' '.join(res)
 
-@app.route('/re')
-def re():
-    return bert.regex(request.get_json())
+@app.route('/re/run')
+def re_run():
+    return jsonify(renext.run(request.get_json()))
+
+@app.route('/re/pipeline')
+def re_pipeline():
+    return jsonify(renext.run(request.get_json()))
 
 @app.route("/bert_embedding", methods=["POST"])
 def embed_bert_cls():

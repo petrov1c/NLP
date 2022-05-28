@@ -7,9 +7,6 @@ from flask import jsonify
 
 import re
 
-REGEX_ONE_STEP = re.compile(r'\S*\d\S*')  # удаление слов, где есть цифры
-REGEX_TWO_STEP = re.compile(r'[А-я0-9.,!?ёЁ"]+')  # Оставим только русский текст
-
 class Bert:
     def __init__(self, data, model, tokenizer):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -17,6 +14,9 @@ class Bert:
 
         self.tokenizer = tokenizer
         self.model = model
+        self.re_pipeline = dict()
+        self.re_pipeline[0] = re.compile(r'\S*\d\S*')          # удаление слов, где есть цифры
+        self.re_pipeline[1] = re.compile(r'[А-я0-9.,!?ёЁ"]+')  # Оставим только русский текст
 
         if isinstance(data, dict):
             embs = torch.zeros((len(data), model.config.emb_size), device=device)
@@ -72,8 +72,8 @@ class Bert:
         embs_dict = dict()
 
         for i, good in enumerate(data):
-            line = REGEX_ONE_STEP.sub('', good['Наименование'].strip())
-            line = ' '.join(REGEX_TWO_STEP.findall(line))
+            line = self.re_pipeline[0].sub('', good['Наименование'].strip())
+            line = ' '.join(self.re_pipeline[1].findall(line))
 
             embs[i] = self.embed_bert_cls(line)
             embs_dict[i] = good['Код']
@@ -101,22 +101,3 @@ def load_model():
         bert_embs = ''
 
     return Bert(bert_embs, model, tokenizer)
-
-def regex(data):
-    # https://habr.com/ru/post/349860/
-    # https: //regex101.com/r/aGn8QC/2 удобно использовать для отладки шаблонов
-
-    if 'ТипДанных' in data:
-        if data['ТипДанных'] == 'Дата':
-            sh = '\d{1,2}[.,/]\d{1,2}[.,/]\d{2,4}(?:[\s]?[г][ода]*[.]?)?|\d{1,2}\s(?:янв|фев|мар|апр|мая|июн|июл|авг|сент|окт|ноя|дек)[а-я]*\s\d{2,4}(?:[\s]?[г][ода]*[.]?)?'
-        else:
-            return jsonify({'error': 'Тип данных {} не поддерживается'.format(data['ТипДанных'])})
-
-        REGEX = re.compile(sh)
-        return jsonify({'result': REGEX.findall(data['Строка'].lower().strip())})
-    elif 'Шаблон' in data:
-        REGEX = re.compile(data['Шаблон'])
-        return jsonify({'result': REGEX.findall(data['Строка'].strip())})
-    else:
-        line = REGEX_ONE_STEP.sub('', data['Строка'].strip())
-        return ' '.join(REGEX_TWO_STEP.findall(line))
