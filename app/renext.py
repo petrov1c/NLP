@@ -1,3 +1,4 @@
+__author__ = 'Aleksandr Petrov <petrov1c@yandex.ru>'
 # https://habr.com/ru/post/349860/
 # https: //regex101.com/r/aGn8QC/2 удобно использовать для отладки шаблонов
 import re
@@ -16,6 +17,7 @@ def run(data):
 
     if 'ТипДанных' in data:
         if data['ТипДанных'] == 'Дата':
+            #ToDo Добавить в шаблон время
             sh = re.compile(r'\d{1,2}[.,/]\d{1,2}[.,/]\d{2,4}(?:[\s]?[г][ода]*[.]?)?|\d{1,2}\s(?:янв|фев|мар|апр|мая|июн|июл|авг|сент|окт|ноя|дек)[а-я]*\s\d{2,4}(?:[\s]?[г][ода]*[.]?)?')
         elif data['ТипДанных'] == 'Телефон':
             sh = re.compile(r'[+]?\d+(?:[\s()-]{1,2}\d+){2,}')
@@ -36,19 +38,40 @@ def run(data):
         else:
             return {'result': sh.sub('', data['Строка'].strip())}
 
-def pipeline(config, data):
+def pipeline(pipeline, data):
     '''
-
-    :param config: Словарь содержащий 3 массива шаблонов предобработки, обработки и постобработки данных
-                        каждый элемент массива содержит имя фукнции и шаблон
+    :param config: Массив, содержащий шаги обработки
     :param data: текст или массив с текстами
     :return: текст или массив с текстами
     '''
 
-    if isinstance(data, str):
+    one_sample = isinstance(data, str)
+    if one_sample:
         data = [data]
 
-    if 'предобработка' in config:
-        for text in data:
-            for instruct in config['Предобработка']:
-                pass
+    result = []
+    for text in data:
+        text = text.lower()
+        for step in pipeline:
+            step["Строка"] = text
+            answer = run(step)
+
+            if 'error' in answer:
+                result.append({'error': answer['error']})
+                break
+            elif isinstance(answer["result"], str):
+                text = answer["result"]
+            elif isinstance(answer["result"], list):
+                if len(answer["result"]):
+                    text = answer["result"][0]
+                else:
+                    text = ""
+
+            if text == "":
+                break
+        result.append({'result': text})
+
+    if one_sample:
+        return result[0]
+    else:
+        return result

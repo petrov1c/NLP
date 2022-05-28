@@ -39,7 +39,8 @@ def re_run():
 
 @app.route('/re/pipeline')
 def re_pipeline():
-    return jsonify(renext.run(request.get_json()))
+    data = request.get_json()
+    return jsonify(renext.pipeline(data['Пайплайн'], data['Данные']))
 
 @app.route("/bert_embedding", methods=["POST"])
 def embed_bert_cls():
