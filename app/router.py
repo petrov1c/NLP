@@ -33,7 +33,7 @@ def test():
 
     return ' '.join(res)
 
-@app.route('/re/run')
+@app.route('/re/run', methods=["POST", "GET"])
 def re_run():
     return jsonify(renext.run(request.get_json()))
 
