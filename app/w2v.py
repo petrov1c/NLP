@@ -114,7 +114,7 @@ class G2V:
             positive = [i for i in data['Данные'] if i in self.model.key_to_index]
             if len(positive):
                 rez_data = self.model.most_similar(positive=positive, topn=count)
-                rez_data = {i[0]:i[1] for i in rez_data}
+                rez_data = [{i[0]:i[1]} for i in rez_data]
                 return {'result': True, 'data': rez_data}
             else:
                 return {'result': False, 'error': 'товаров нет в словаре'}
@@ -129,6 +129,3 @@ def fit(model):
         thread_fit = threading.Thread(target=model.fit)
         thread_fit.start()
         return {'result': True}
-
-def load_model():
-    return G2V()

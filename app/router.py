@@ -1,5 +1,5 @@
 from app import bert
-from app import w2v
+from app.w2v import G2V
 from app.fasttext_gs import KeyVectored
 from app.fasttext_cc import SearchModel
 
@@ -155,7 +155,7 @@ if 'bert' in USED_MODELS:
     bert_model = bert.load_model()
 
 if 'w2v' in USED_MODELS:
-    w2v_model = w2v.load_model()
+    w2v_model = G2V()
 
 if 'fasttext_gs' in USED_MODELS:
     fasttext_gs_model = KeyVectored()
