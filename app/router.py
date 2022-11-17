@@ -100,7 +100,7 @@ def fasttext_cc_config():
 
 @app.route("/fasttext_cc/fit", methods=["POST"])
 def fasttext_cc_fit():
-    fasttext_cc_model.fit(request.get_json()['Данные'])
+    fasttext_cc_model.fit(request.get_json())
     return jsonify({'result': True})
 
 @app.route("/fasttext_cc/predict", methods=["POST"])
@@ -131,12 +131,7 @@ def w2v_config():
 
 @app.route("/w2v/fit", methods=["POST"])
 def w2v_fit():
-    return jsonify(w2v.fit(w2v_model))
-
-@app.route("/w2v/update", methods=["POST"])
-def w2v_update():
-    w2v_model.update(request.get_json())
-    return jsonify({'result': True})
+    return jsonify(w2v_model.fit(request.get_json()))
 
 @app.route("/w2v/predict", methods=["POST"])
 def w2v_predict():
