@@ -15,8 +15,9 @@ class SearchModel:
         start_time = time.time()
         self.model_init = False
         self.training = False
+        self.embs_is_load = False
         self.fit_time = 0
-        self.date_training = ''
+        self.date_training = datetime.isoformat(datetime(1,1,1))
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.re = re.compile(r'[^а-яА-ЯёЁ0-9a-zA-Z @!?,.|/:;\'""*&@#$№%\[\]{}()+\-$]')
@@ -31,20 +32,13 @@ class SearchModel:
                     self.model_init = True
                     self.date_init = datetime.isoformat(datetime.now())
 
-                    self.embs_is_load = False
-
                 if os.path.isfile('./data/fasttext_cc_embs.json'):
                     with open('./data/fasttext_cc_embs.json', "r") as read_file:
                         loaded_data = json.load(read_file)
 
                     self.data = loaded_data['data']
-                    self.embs = torch.zeros((len(loaded_data['embs']), self.model.get_dimension())).to(self.device)
-                    for idx, key in enumerate(loaded_data['embs']):
-                        self.embs[idx] = torch.Tensor(loaded_data['embs'][key]).to(self.device)
-
+                    self.embs = torch.Tensor(loaded_data['embs']).to(self.device)
                     self.embs_is_load = True
-                    self.date_load_embs = datetime.isoformat(datetime.now())
-                    self.time_load_embs = round(time.time() - start_time, 3)
 
             if 'pattern' in config:
                 self.re = re.compile(r'{}'.format(config['pattern']))
@@ -65,7 +59,6 @@ class SearchModel:
 
     def fit_model(self, x):
         self.training = True
-        self.embs_is_load = False
 
         start_time = time.time()
 
@@ -81,12 +74,11 @@ class SearchModel:
 
         self.training = False
         self.embs_is_load = True
-        self.date_load_embs = datetime.isoformat(datetime.now())
-        self.time_load_embs = round(time.time() - start_time, 3)
+        self.date_training = datetime.isoformat(datetime.now())
+        self.fit_time = round(time.time() - start_time, 3)
 
-        embs = {data['code']: self.embs[idx].tolist() for idx, data in enumerate(self.data)}
         with open('./data/fasttext_cc_embs.json', "w") as write_file:
-            save_data = {'data': self.data, 'embs': embs}
+            save_data = {'data': self.data, 'embs': self.embs.tolist()}
             json.dump(save_data, write_file)
 
     def predict(self, text, top=3, threshold=0.5, debug=False):
@@ -138,12 +130,8 @@ class SearchModel:
                 info['дата создания'] = self.date_init
                 info['эмбеддинги загружены'] = self.embs_is_load
 
-            if self.embs_is_load:
-                info['дата загрузки эмбеддингов'] = self.date_load_embs
-                info['Время загрузки данных'] = self.time_load_embs
-
             info['идет обучение'] = self.training
-            info['дата запуска обучения'] = self.date_training
+            info['дата обучения'] = self.date_training
             info['время обучения'] = self.fit_time
 
         if 'Конфигурация' in data:

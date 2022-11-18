@@ -14,13 +14,14 @@ class G2V:
         self.model_init = False
         self.training = False
         self.fit_time = 0
-        self.date_training = ''
+        self.date_training = datetime.isoformat(datetime(1,1,1))
 
         if os.path.isfile('./data/w2v.txt'):
             self.model = gensim.models.KeyedVectors.load_word2vec_format('./data/w2v.txt', binary=True)
             self.model_init = True
-            self.date_init = datetime.isoformat(datetime.now())
-            self.startup_time = round(time.time() - start_time, 3)
+
+        self.date_init = datetime.isoformat(datetime.now())
+        self.startup_time = round(time.time() - start_time, 3)
 
     def model_info(self):
 
@@ -32,7 +33,7 @@ class G2V:
             info['размер словаря'] = len(self.model)
 
         info['идет обучение'] = self.training
-        info['дата запуска обучения'] = self.date_training
+        info['дата обучения'] = self.date_training
         info['время обучения'] = self.fit_time
 
         if os.path.isfile('./data/w2v_config.json'):
