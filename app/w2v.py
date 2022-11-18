@@ -89,7 +89,7 @@ class G2V:
         with open('./data/w2v_config.json', "w", encoding='UTF-8') as write_file:
             json.dump(data, write_file)
 
-        #ToDo Переделать в асинхронный режим
+        # ToDo Переделать в асинхронный режим
         self.__init__()
 
     def predict(self, data):

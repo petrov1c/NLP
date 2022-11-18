@@ -25,26 +25,29 @@ class SearchModel:
             with open('./data/fasttext_cc_config.json', "r", encoding='UTF-8') as read_file:
                 config = json.load(read_file)
 
-                if 'model' in config:
-                    if os.path.isfile(config['model']):
-                        self.model = fasttext.load_model(config['model'])
-                        self.model_init = True
-                        self.date_init = datetime.isoformat(datetime.now())
+            if 'model' in config:
+                if os.path.isfile(config['model']):
+                    self.model = fasttext.load_model(config['model'])
+                    self.model_init = True
+                    self.date_init = datetime.isoformat(datetime.now())
 
                     self.embs_is_load = False
 
-                    if os.path.isfile('./data/fasttext_cc_embs.json'):
-                        with open('./data/fasttext_cc_embs.json', "r") as read_file:
-                            loaded_data = json.load(read_file)
+                if os.path.isfile('./data/fasttext_cc_embs.json'):
+                    with open('./data/fasttext_cc_embs.json', "r") as read_file:
+                        loaded_data = json.load(read_file)
 
-                        self.data = loaded_data['data']
-                        self.embs = torch.zeros((len(loaded_data['embs']), self.model.get_dimension())).to(self.device)
-                        for idx, key in enumerate(loaded_data['embs']):
-                            self.embs[idx] = torch.Tensor(loaded_data['embs'][key]).to(self.device)
+                    self.data = loaded_data['data']
+                    self.embs = torch.zeros((len(loaded_data['embs']), self.model.get_dimension())).to(self.device)
+                    for idx, key in enumerate(loaded_data['embs']):
+                        self.embs[idx] = torch.Tensor(loaded_data['embs'][key]).to(self.device)
 
-                        self.embs_is_load = True
-                        self.date_load_embs = datetime.isoformat(datetime.now())
-                        self.time_load_embs = round(time.time() - start_time, 3)
+                    self.embs_is_load = True
+                    self.date_load_embs = datetime.isoformat(datetime.now())
+                    self.time_load_embs = round(time.time() - start_time, 3)
+
+            if 'pattern' in config:
+                self.re = re.compile(r'{}'.format(config['pattern']))
 
         self.startup_time = round(time.time() - start_time, 3)
 
@@ -53,7 +56,7 @@ class SearchModel:
         return self.re.sub('', text)
 
     def fit(self, x):
-        if hasattr(self, 'training') and self.training:
+        if self.training:
             return {'result': False, 'error': 'Обучение уже запущено'}
         else:
             thread_fit = threading.Thread(target=self.fit_model, kwargs={'x': x})
@@ -120,32 +123,43 @@ class SearchModel:
         with open('./data/fasttext_cc_config.json', "w", encoding='UTF-8') as write_file:
             json.dump(data, write_file)
 
-        #ToDo Переделать в асинхронный режим
+        # ToDo Переделать в асинхронный режим
         self.__init__()
 
-    def model_info(self):
-
+    def model_info(self, data):
         info = dict()
-        info['модель создана'] = self.model_init
-        info['запущена на'] = self.device
-        info['время запуска'] = self.startup_time
 
-        if self.model_init:
-            info['дата создания'] = self.date_init
-            info['эмбеддинги загружены'] = self.embs_is_load
+        if 'Информация' in data:
+            info['модель создана'] = self.model_init
+            info['запущена на'] = self.device
+            info['время запуска'] = self.startup_time
 
-        if self.embs_is_load:
-            info['дата загрузки эмбеддингов'] = self.date_load_embs
-            info['Время загрузки данных'] = self.time_load_embs
+            if self.model_init:
+                info['дата создания'] = self.date_init
+                info['эмбеддинги загружены'] = self.embs_is_load
 
-        info['идет обучение'] = self.training
-        info['дата запуска обучения'] = self.date_training
-        info['время обучения'] = self.fit_time
+            if self.embs_is_load:
+                info['дата загрузки эмбеддингов'] = self.date_load_embs
+                info['Время загрузки данных'] = self.time_load_embs
 
-        if os.path.isfile('./data/fasttext_cc_config.json'):
-            with open('./data/fasttext_cc_config.json', "r", encoding='UTF-8') as read_file:
-                info['конфигурационный файл'] = json.load(read_file)
-        else:
-            info['конфигурационный файл'] = 'отсутствует'
+            info['идет обучение'] = self.training
+            info['дата запуска обучения'] = self.date_training
+            info['время обучения'] = self.fit_time
+
+        if 'Конфигурация' in data:
+            if os.path.isfile('./data/fasttext_cc_config.json'):
+                with open('./data/fasttext_cc_config.json', "r", encoding='UTF-8') as read_file:
+                    info['конфигурационный файл'] = json.load(read_file)
+            else:
+                info['конфигурационный файл'] = 'отсутствует'
+
+        if 'Данные' in data:
+            if self.training:
+                info['данные'] = 'сейчас идет обучение модели, запросите данные позже'
+            elif os.path.isfile('./data/fasttext_cc_embs.json'):
+                with open('./data/fasttext_cc_embs.json', "r", encoding='UTF-8') as read_file:
+                    info['данные'] = json.load(read_file)
+            else:
+                info['данные'] = 'данных нет'
 
         return info

@@ -91,7 +91,7 @@ def fasttext_predict():
 # Fasttext facebook
 @app.route("/fasttext_cc/model_info", methods=["POST"])
 def fasttext_cc_model_info():
-    return jsonify(fasttext_cc_model.model_info())
+    return jsonify(fasttext_cc_model.model_info(request.get_json()))
 
 @app.route("/fasttext_cc/config", methods=["POST"])
 def fasttext_cc_config():
