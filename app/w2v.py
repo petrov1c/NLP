@@ -9,15 +9,18 @@ from datetime import datetime
 
 
 class G2V:
-    def __init__(self):
+    def __init__(self, name):
         start_time = time.time()
+        self.name = name
+        self.data_file = './data/w2v/{}.txt'.format(name)
+        self.config_file = './data/w2v/{}_config.json'.format(name)
         self.model_init = False
         self.training = False
         self.fit_time = 0
-        self.date_training = datetime.isoformat(datetime(1,1,1))
+        self.date_training = datetime.isoformat(datetime(1, 1, 1))
 
-        if os.path.isfile('./data/w2v.txt'):
-            self.model = gensim.models.KeyedVectors.load_word2vec_format('./data/w2v.txt', binary=True)
+        if os.path.isfile(self.data_file):
+            self.model = gensim.models.KeyedVectors.load_word2vec_format(self.data_file, binary=True)
             self.model_init = True
 
         self.date_init = datetime.isoformat(datetime.now())
@@ -36,8 +39,8 @@ class G2V:
         info['дата обучения'] = self.date_training
         info['время обучения'] = self.fit_time
 
-        if os.path.isfile('./data/w2v_config.json'):
-            with open('./data/w2v_config.json', "r", encoding='UTF-8') as read_file:
+        if os.path.isfile(self.config_file):
+            with open(self.config_file, "r", encoding='UTF-8') as read_file:
                 info['конфигурационный файл'] = json.load(read_file)
         else:
             info['конфигурационный файл'] = 'отсутствует'
@@ -63,8 +66,8 @@ class G2V:
         sg = 0
         epoch = 100
 
-        if os.path.isfile('./data/w2v_config.json'):
-            with open('./data/w2v_config.json', "r", encoding='UTF-8') as read_file:
+        if os.path.isfile(self.config_file):
+            with open(self.config_file, "r", encoding='UTF-8') as read_file:
                 w2v_config = json.load(read_file)
                 if isinstance(w2v_config, dict):
                     if 'window_size' in w2v_config:
@@ -80,18 +83,18 @@ class G2V:
 
         model = gensim.models.Word2Vec(data, window=window_size, sg=sg, min_count=3, vector_size=emb_size, epochs=epoch,
                                        workers=cpu_count())
-        model.wv.save_word2vec_format('./data/w2v.txt', binary=True)
+        model.wv.save_word2vec_format(self.data_file, binary=True)
 
-        self.__init__()
+        self.__init__(self.name)
         self.fit_time = round(time.time() - start_time, 3)
         self.date_training = datetime.isoformat(datetime.now())
 
     def config(self, data):
-        with open('./data/w2v_config.json', "w", encoding='UTF-8') as write_file:
+        with open(self.config_file, "w", encoding='UTF-8') as write_file:
             json.dump(data, write_file)
 
         # ToDo Переделать в асинхронный режим
-        self.__init__()
+        self.__init__(self.name)
 
     def predict(self, data):
         if self.model_init:

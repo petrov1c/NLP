@@ -20,10 +20,9 @@ def index():
 def test():
     res = []
     if 'w2v_model' in globals():
-        if hasattr(w2v_model, 'model'):
-            res.append("w2v: It works!")
-        else:
-            res.append("w2v: модель не инициализирована")
+        for name in w2v_model:
+            if w2v_model[name].model_init:
+                res.append("w2v ({}): It works!".format(name))
 
     if 'bert_model' in globals():
         if hasattr(bert_model, 'model'):
@@ -122,20 +121,24 @@ def fasttext_cc_predict():
 # Word2Vec
 @app.route("/w2v/model_info", methods=["POST"])
 def w2v_model_info():
-    return jsonify(w2v_model.model_info())
+    model_name = request.headers['model']
+    return jsonify(w2v_model[model_name].model_info())
 
 @app.route("/w2v/config", methods=["POST"])
 def w2v_config():
-    w2v_model.config(request.get_json())
+    model_name = request.headers['model']
+    w2v_model[model_name].config(request.get_json())
     return jsonify({'result': True})
 
 @app.route("/w2v/fit", methods=["POST"])
 def w2v_fit():
-    return jsonify(w2v_model.fit(request.get_json()))
+    model_name = request.headers['model']
+    return jsonify(w2v_model[model_name].fit(request.get_json()))
 
 @app.route("/w2v/predict", methods=["POST"])
 def w2v_predict():
-    return jsonify(w2v_model.predict(request.get_json()))
+    model_name = request.headers['model']
+    return jsonify(w2v_model[model_name].predict(request.get_json()))
 
 def get_models():
     models = []
@@ -150,7 +153,9 @@ if 'bert' in USED_MODELS:
     bert_model = bert.load_model()
 
 if 'w2v' in USED_MODELS:
-    w2v_model = G2V()
+    w2v_model = dict()
+    for name in USED_MODELS['w2v']:
+        w2v_model[name] = G2V(name)
 
 if 'fasttext_gs' in USED_MODELS:
     fasttext_gs_model = KeyVectored()
