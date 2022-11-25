@@ -1,7 +1,7 @@
 import fasttext
 import torch
 
-import threading                       # Для запуска фонового обучения
+import threading  # Для запуска фонового обучения
 
 import os.path
 import re
@@ -11,34 +11,42 @@ from datetime import datetime
 
 
 class SearchModel:
-    def __init__(self):
+    def __init__(self, name):
         start_time = time.time()
+        self.name = name
+        self.data_file = './data/fasttext/{}.json'.format(name)
+        self.config_file = './data/fasttext/{}_config.json'.format(name)
         self.model_init = False
         self.training = False
         self.embs_is_load = False
         self.fit_time = 0
-        self.date_training = datetime.isoformat(datetime(1,1,1))
+        self.date_training = datetime.isoformat(datetime(1, 1, 1))
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.re = re.compile(r'[^а-яА-ЯёЁ0-9a-zA-Z @!?,.|/:;\'""*&@#$№%\[\]{}()+\-$]')
 
-        if os.path.isfile('./data/fasttext_cc_config.json'):
-            with open('./data/fasttext_cc_config.json', "r", encoding='UTF-8') as read_file:
+        if os.path.isfile(self.config_file):
+            with open(self.config_file, "r", encoding='UTF-8') as read_file:
                 config = json.load(read_file)
 
             if 'model' in config:
-                if os.path.isfile(config['model']):
-                    self.model = fasttext.load_model(config['model'])
+                if os.path.isfile('./data/models/{}'.format(config['model'])):
+                    if not config['model'] in fasttext_models:
+                        fasttext_models[config['model']] = fasttext.load_model('./data/models/{}'.format(config['model']))
+
+                    self.model = fasttext_models[config['model']]
                     self.model_init = True
                     self.date_init = datetime.isoformat(datetime.now())
 
-                if os.path.isfile('./data/fasttext_cc_embs.json'):
-                    with open('./data/fasttext_cc_embs.json', "r") as read_file:
+                if os.path.isfile(self.data_file):
+                    with open(self.data_file, "r") as read_file:
                         loaded_data = json.load(read_file)
 
-                    self.data = loaded_data['data']
-                    self.embs = torch.Tensor(loaded_data['embs']).to(self.device)
-                    self.embs_is_load = True
+                    if len(loaded_data['embs'][0])>0:
+                        if self.model.get_dimension() == len(loaded_data['embs'][0]):
+                            self.data = loaded_data['data']
+                            self.embs = torch.Tensor(loaded_data['embs']).to(self.device)
+                            self.embs_is_load = True
 
             if 'pattern' in config:
                 self.re = re.compile(r'{}'.format(config['pattern']))
@@ -77,7 +85,7 @@ class SearchModel:
         self.date_training = datetime.isoformat(datetime.now())
         self.fit_time = round(time.time() - start_time, 3)
 
-        with open('./data/fasttext_cc_embs.json', "w") as write_file:
+        with open(self.data_file, "w") as write_file:
             save_data = {'data': self.data, 'embs': self.embs.tolist()}
             json.dump(save_data, write_file)
 
@@ -100,11 +108,15 @@ class SearchModel:
                 thresh_idx = rez > threshold
                 data = [{self.data[idx]['code']: rez[idx].item()} for idx in sort_idx if thresh_idx[idx]]
                 if debug:
-                    debug_data = [[self.data[idx]['code'], self.data[idx]['text'], rez[idx].item(), self.embs[idx].tolist()] for idx in sort_idx if thresh_idx[idx]]
+                    debug_data = [
+                        [self.data[idx]['code'], self.data[idx]['text'], rez[idx].item(), self.embs[idx].tolist()] for
+                        idx in sort_idx if thresh_idx[idx]]
             else:
                 data = [{self.data[idx]['code']: rez[idx].item()} for idx in sort_idx]
                 if debug:
-                    debug_data = [[self.data[idx]['code'], self.data[idx]['text'], rez[idx].item(), self.embs[idx].tolist()] for idx in sort_idx]
+                    debug_data = [
+                        [self.data[idx]['code'], self.data[idx]['text'], rez[idx].item(), self.embs[idx].tolist()] for
+                        idx in sort_idx]
 
             if debug:
                 return {'data': data, 'text': text, 'embs': search_emb[0].tolist(), 'debug_data': debug_data}
@@ -112,11 +124,11 @@ class SearchModel:
                 return {'data': data, 'text': text}
 
     def config(self, data):
-        with open('./data/fasttext_cc_config.json', "w", encoding='UTF-8') as write_file:
+        with open(self.config_file, "w", encoding='UTF-8') as write_file:
             json.dump(data, write_file)
 
         # ToDo Переделать в асинхронный режим
-        self.__init__()
+        self.__init__(self.name)
 
     def model_info(self, data):
         info = dict()
@@ -135,8 +147,8 @@ class SearchModel:
             info['время обучения'] = self.fit_time
 
         if 'Конфигурация' in data:
-            if os.path.isfile('./data/fasttext_cc_config.json'):
-                with open('./data/fasttext_cc_config.json', "r", encoding='UTF-8') as read_file:
+            if os.path.isfile(self.config_file):
+                with open(self.config_file, "r", encoding='UTF-8') as read_file:
                     info['конфигурационный файл'] = json.load(read_file)
             else:
                 info['конфигурационный файл'] = 'отсутствует'
@@ -144,10 +156,13 @@ class SearchModel:
         if 'Данные' in data:
             if self.training:
                 info['данные'] = 'сейчас идет обучение модели, запросите данные позже'
-            elif os.path.isfile('./data/fasttext_cc_embs.json'):
-                with open('./data/fasttext_cc_embs.json', "r", encoding='UTF-8') as read_file:
+            elif os.path.isfile(self.data_file):
+                with open(self.data_file, "r", encoding='UTF-8') as read_file:
                     info['данные'] = json.load(read_file)
             else:
                 info['данные'] = 'данных нет'
 
         return info
+
+
+fasttext_models = dict()
