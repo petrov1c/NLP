@@ -24,13 +24,13 @@ def test():
     res = []
     if 'w2v_model' in globals():
         if model_name in w2v_model:
-            if w2v_model[name].model_init:
-                res.append("w2v ({}): It works!".format(name))
+            if w2v_model[model_name].model_init:
+                res.append("w2v ({}): It works!".format(model_name))
 
     if 'fasttext_cc_model' in globals():
         if model_name in fasttext_cc_model:
-            if fasttext_cc_model[name].model_init:
-                res.append("fasttext ({}): It works!".format(name))
+            if fasttext_cc_model[model_name].model_init:
+                res.append("fasttext ({}): It works!".format(model_name))
 
     if 'bert_model' in globals():
         if hasattr(bert_model, 'model'):
