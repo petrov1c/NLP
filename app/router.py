@@ -20,11 +20,17 @@ def index():
 
 @app.route('/test')
 def test():
+    model_name = request.headers['model']
     res = []
     if 'w2v_model' in globals():
-        for name in w2v_model:
+        if model_name in w2v_model:
             if w2v_model[name].model_init:
                 res.append("w2v ({}): It works!".format(name))
+
+    if 'fasttext_cc_model' in globals():
+        if model_name in fasttext_cc_model:
+            if fasttext_cc_model[name].model_init:
+                res.append("fasttext ({}): It works!".format(name))
 
     if 'bert_model' in globals():
         if hasattr(bert_model, 'model'):
@@ -40,12 +46,6 @@ def test():
             res.append("fasttext_gs: It works!")
         else:
             res.append("fasttext_gs: модель не инициализирована")
-
-    if 'fasttext_cc_model' in globals():
-        if hasattr(fasttext_cc_model, 'model'):
-            res.append("fasttext_cc: It works!")
-        else:
-            res.append("fasttext_cc: модель не инициализирована")
 
     return ' '.join(res)
 
