@@ -6,8 +6,6 @@ import re
 #ToDo настроить кеширование шаблонов
 
 def run(data):
-    data['Строка'] = data['Строка'].strip()
-
     if 'Метод' in data:
         if data['Метод'] in ['findall', 'finditer', 'sub']:
             method = data['Метод']
