@@ -4,13 +4,22 @@ from gensim.models import KeyedVectors
 import re
 import json
 import torch
+import cv2
 
-a = torch.randn((100,3))
-b = torch.randn((100,3))
+pattern = '?'
+stroka = 'Воздухоотводчик автоматический латунь 502 Ду 15 Ру10 G1/2" НР прямой OR 0502.016'
 
-rez = torch.cosine_similarity(a, b)
+res = re.findall(pattern, stroka)
 
-rez = rez[rez>0]
+
+#capture = cv2.VideoCapture('rtsp://192.168.13.10')
+
+#a = torch.randn((100,3))
+#b = torch.randn((100,3))
+
+#rez = torch.cosine_similarity(a, b)
+
+#rez = rez[rez>0]
 #s = json.dump(True)
 #regex = re.compile(r'[A-z]+')
 

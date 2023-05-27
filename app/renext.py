@@ -6,9 +6,10 @@ import re
 #ToDo настроить кеширование шаблонов
 
 def run(data):
+    data['Строка'] = data['Строка'].strip()
 
     if 'Метод' in data:
-        if data['Метод'] in ['findall', 'sub']:
+        if data['Метод'] in ['findall', 'finditer', 'sub']:
             method = data['Метод']
         else:
             method = 'findall'
@@ -31,12 +32,18 @@ def run(data):
         sh = re.compile(data['Шаблон'])
 
     if method == 'findall':
-        return {'result': sh.findall(data['Строка'].strip())}
+        result = sh.findall(data['Строка'])
+        return {'result': result}
+    elif method == 'finditer':
+        match = sh.finditer(data['Строка'])
+        result = [[val.start(), val.end(), val.group()] for val in match]
+        return {'result': result}
     else:
         if 'ТекстЗамены' in data:
-            return {'result': sh.sub(data['ТекстЗамены'], data['Строка'].strip())}
+            result = sh.sub(data['ТекстЗамены'], data['Строка'])
         else:
-            return {'result': sh.sub('', data['Строка'].strip())}
+            result = sh.sub('', data['Строка'])
+        return {'result': result}
 
 def pipeline(pipeline, data):
     '''
